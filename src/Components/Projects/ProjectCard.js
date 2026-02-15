@@ -26,7 +26,7 @@ export default function ProjectCard({ project }) {
         >
           <img
             src={project.image}
-            alt="img"
+            alt="img"  // alt
             style={{
               width: "100%",
               height: 500,
