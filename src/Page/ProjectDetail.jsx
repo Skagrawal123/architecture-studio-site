@@ -17,6 +17,7 @@ export default function ProjectDetail() {
 
       <img
         src={project.image}
+        alt="img"
         style={{
           width: "100%",
           height: 600,
