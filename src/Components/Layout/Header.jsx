@@ -1,34 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import NavbarJson from "../../Data/NavbarJson";
+import "../CSSFiles/Header.css";
 
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState(NavbarJson[0]);
   const [showIntro, setShowIntro] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileActiveMenu, setMobileActiveMenu] = useState(null);
 
   const logoRef = useRef(null);
   const [targetPosition, setTargetPosition] = useState(null);
-
-  /* ================= RESPONSIVE LISTENER ================= */
-  const [isMobile, setIsMobile] = useState(
-    window.matchMedia("(max-width: 768px)").matches
-  );
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
-
-    const handleChange = (e) => {
-      setIsMobile(e.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleChange);
-    };
-  }, []);
 
   /* ================= GET LOGO POSITION FOR INTRO ================= */
   useEffect(() => {
@@ -53,10 +36,9 @@ export default function Header() {
   }, []);
 
   const containerStyle = {
-    maxWidth: "1400px",
+    width: "100%",
     margin: "0 auto",
-    padding: isMobile ? "0 20px" : "0 40px",
-    width: "100%"
+    padding: "0 20px"
   };
 
   return (
@@ -87,8 +69,15 @@ export default function Header() {
             zIndex: 3000
           }}
         >
-          <div style={{ fontSize: 70, fontWeight: 600 }}>RK</div>
-          <div style={{ fontSize: 18, letterSpacing: "6px" }}>
+          <div style={{ fontSize: "clamp(40px, 8vw, 70px)", fontWeight: 600 }}>
+            RK
+          </div>
+          <div
+            style={{
+              fontSize: "clamp(14px, 2vw, 18px)",
+              letterSpacing: "6px"
+            }}
+          >
             ARCHITECTS
           </div>
         </motion.div>
@@ -110,172 +99,138 @@ export default function Header() {
       )}
 
       {/* ================= NAVBAR ================= */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          width: "100%",
-          backgroundColor: "#f3f3f3",
-          borderBottom: "1px solid #ddd",
-          zIndex: 1000
-        }}
-      >
+      <div className="header-wrapper">
         {/* TOP ROW */}
-        <div
-          style={{
-            ...containerStyle,
-            height: 70,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between"
-          }}
-        >
+        <div style={containerStyle} className="top-row">
           {/* LOGO */}
           <Link
             to="/"
             ref={logoRef}
-            style={{
-              textDecoration: "none",
-              color: "#000",
-              display: "flex",
-              flexDirection: "column",
-              lineHeight: 1
-            }}
+            className="logo"
           >
-            <span style={{ fontSize: 28, fontWeight: 600 }}>RK</span>
-            <span style={{ fontSize: 12, letterSpacing: "3px" }}>
-              ARCHITECTS
-            </span>
+            <span className="logo-main">RK</span>
+            <span className="logo-sub">ARCHITECTS</span>
           </Link>
 
-          {/* CENTER NAV (DESKTOP ONLY) */}
-          {!isMobile && (
-            <div
-              style={{
-                display: "flex",
-                gap: "40px",
-                fontSize: 14,
-                letterSpacing: "2px"
-              }}
-            >
-              {NavbarJson.map((item) => (
-                <span
-                  key={item.id}
-                  onClick={() => setActiveMenu(item)}
-                  style={{
-                    cursor: "pointer",
-                    fontWeight:
-                      activeMenu.slug === item.slug ? "600" : "400"
-                  }}
-                >
-                  {item.name.toUpperCase()}
-                </span>
-              ))}
-            </div>
-          )}
+          {/* CENTER NAV */}
+          <div className="nav-center">
+            {NavbarJson.map((item) => (
+              <span
+                key={item.id}
+                onClick={() =>
+                  setActiveMenu(activeMenu.slug === item.slug ? {} : item)
+                }
+                className={`nav-item ${activeMenu.slug === item.slug ? "active" : ""
+                  }`}
+              >
+                {item.name.toUpperCase()}
+              </span>
+            ))}
+          </div>
 
           {/* RIGHT SECTION */}
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            {!isMobile && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  borderBottom: "1px solid #999",
-                  paddingBottom: "3px"
-                }}
-              >
-                🔍
-                <input
-                  type="text"
-                  placeholder="SEARCH"
-                  style={{
-                    border: "none",
-                    outline: "none",
-                    background: "transparent",
-                    fontSize: 14,
-                    letterSpacing: "2px",
-                    width: "120px"
-                  }}
-                />
-              </div>
-            )}
+          <div className="right-section">
+            <div className="search-box">
+              🔍
+              <input type="text" placeholder="SEARCH" />
+            </div>
 
-            {isMobile && (
-              <div
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                style={{
-                  fontSize: 24,
-                  cursor: "pointer"
-                }}
-              >
-                {mobileMenuOpen ? "✕" : "☰"}
-              </div>
-            )}
+            <div
+              className="mobile-toggle"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </div>
           </div>
         </div>
 
         {/* MOBILE DROPDOWN */}
-        {isMobile && mobileMenuOpen && (
-          <div
-            style={{
-              backgroundColor: "#f3f3f3",
-              padding: "20px"
-            }}
-          >
-            {NavbarJson.map((item) => (
-              <div key={item.id} style={{ marginBottom: "15px" }}>
-                <div
-                  style={{
-                    fontWeight: "600",
-                    marginBottom: "8px",
-                    cursor: "pointer"
-                  }}
-                  onClick={() => setActiveMenu(item)}
-                >
-                  {item.name}
-                </div>
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                   position: "fixed",
+  top: "90px",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0,0,0,0.35)",
+  zIndex: 998
+                }}
+              />
 
-                {item.subMenu.map((sub, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      paddingLeft: "15px",
-                      fontSize: "14px",
-                      marginBottom: "5px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    {sub}
+              {/* Sidebar */}
+              <motion.div
+                initial={{ x: "100%" }}   // start from right
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}      // go back to right
+                transition={{ duration: 0.3 }}
+                className="mobile-sidebar"
+              >
+                {NavbarJson.map((item) => (
+                  <div key={item.id} className="mobile-menu-item">
+
+                    {/* MAIN NAV */}
+                    <div
+                      className="mobile-main"
+                      onClick={() =>
+                        setMobileActiveMenu(
+                          mobileActiveMenu === item.id ? null : item.id
+                        )
+                      }
+                    >
+                      {item.name}
+                    </div>
+
+                    {/* SUB NAV */}
+                    <AnimatePresence>
+                      {mobileActiveMenu === item.id &&
+                        item.subMenu?.length > 0 && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {item.subMenu.map((sub, index) => (
+                              <div
+                                key={index}
+                                className="mobile-sub"
+                                onClick={() => {
+                                  setMobileMenuOpen(false);
+                                  setMobileActiveMenu(null);
+                                  setActiveMenu(item);
+                                }}
+                              >
+                                {sub}
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
+                    </AnimatePresence>
+
                   </div>
                 ))}
-              </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* DESKTOP SUB NAV */}
+        {activeMenu.subMenu?.length > 0 && (
+          <div style={containerStyle} className="desktop-subnav">
+            {activeMenu.subMenu.map((sub, index) => (
+              <span key={index}>{sub}</span>
             ))}
           </div>
         )}
-
-        {/* DESKTOP SUB NAV */}
-        {!isMobile &&
-          activeMenu.subMenu &&
-          activeMenu.subMenu.length > 0 && (
-            <div
-              style={{
-                ...containerStyle,
-                display: "flex",
-                justifyContent: "center",
-                gap: "35px",
-                padding: "10px 0",
-                fontSize: 14
-              }}
-            >
-              {activeMenu.subMenu.map((sub, index) => (
-                <span key={index} style={{ cursor: "pointer" }}>
-                  {sub}
-                </span>
-              ))}
-            </div>
-          )}
       </div>
     </>
   );

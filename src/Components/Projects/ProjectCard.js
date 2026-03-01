@@ -6,14 +6,15 @@ export default function ProjectCard({ project }) {
     <div
       style={{
         display: "flex",
-        justifyContent: "center" 
+        justifyContent: "center",
+        width: "100%"
       }}
     >
       <Link
         to={`/projects/${project.id}`}
         style={{
           textDecoration: "none",
-          width: "50%"
+          width: "min(90%, 900px)"   // responsive max width
         }}
       >
         <motion.div
@@ -21,16 +22,18 @@ export default function ProjectCard({ project }) {
           style={{
             position: "relative",
             overflow: "hidden",
-            cursor: "pointer"
+            cursor: "pointer",
+            width: "100%"
           }}
         >
           <img
             src={project.image}
-            alt="img"  // alt
+            alt={project.title}
             style={{
               width: "100%",
-              height: 500,
-              objectFit: "cover"
+              aspectRatio: "4 / 5",    // 🔥 responsive height control
+              objectFit: "cover",
+              display: "block"
             }}
           />
 
@@ -41,8 +44,8 @@ export default function ProjectCard({ project }) {
               width: "100%",
               background: "rgba(0,0,0,0.6)",
               color: "white",
-              padding: "20px",
-              fontSize: "18px",
+              padding: "clamp(12px, 3vw, 20px)",
+              fontSize: "clamp(14px, 2vw, 18px)",
               letterSpacing: "2px"
             }}
           >
