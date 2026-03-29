@@ -1,148 +1,235 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import NavbarJson from "../../Data/NavbarJson";
+import "../CSSFiles/Header.css";
 
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState(NavbarJson[0]);
+  const [showIntro, setShowIntro] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileActiveMenu, setMobileActiveMenu] = useState(null);
+
+  const logoRef = useRef(null);
+  const [targetPosition, setTargetPosition] = useState(null);
+
+  /* ================= GET LOGO POSITION FOR INTRO ================= */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (logoRef.current) {
+        const rect = logoRef.current.getBoundingClientRect();
+        setTargetPosition({
+          x: rect.left,
+          y: rect.top
+        });
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+  /* ================= INTRO TIMER ================= */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const containerStyle = {
-    maxWidth: "1400px",
+    width: "100%",
     margin: "0 auto",
-    padding: "0 40px",
-    width: "100%"
+    padding: "0 20px"
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        width: "100%",
-        backgroundColor: "#f3f3f3",
-        borderBottom: "1px solid #ddd",
-        zIndex: 1000
-      }}
-    >
-      {/* TOP ROW */}
-      <div
-        style={{
-          ...containerStyle,
-          height: 70,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between"
-        }}
-      >
-        {/* LEFT */}
-        <Link
-  to="/"
-  style={{
-    textDecoration: "none",
-    color: "#000",
-    display: "flex",
-    flexDirection: "column",
-    lineHeight: 1
-  }}
->
-  <span
-    style={{
-      fontSize: 28,
-      fontWeight: 600,
-      letterSpacing: "1px"
-    }}
-  >
-    RK
-  </span>
-
-  <span
-    style={{
-      fontSize: 12,
-      letterSpacing: "3px",
-      marginTop: "2px"
-    }}
-  >
-    ARCHITECTS
-  </span>
-</Link>
-
-        
-
-        {/* CENTER MAIN NAV */}
-        <div
+    <>
+      {/* ================= INTRO ANIMATION ================= */}
+      {showIntro && targetPosition && (
+        <motion.div
+          initial={{
+            top: "50%",
+            left: "50%",
+            translateX: "-50%",
+            translateY: "-50%",
+            position: "fixed"
+          }}
+          animate={{
+            top: targetPosition.y,
+            left: targetPosition.x,
+            translateX: "0%",
+            translateY: "0%",
+            scale: 0.4
+          }}
+          transition={{
+            duration: 1.5,
+            ease: [0.76, 0, 0.24, 1]
+          }}
           style={{
-            display: "flex",
-            gap: "40px",
-            fontSize: 14,
-            letterSpacing: "2px"
+            color: "white",
+            zIndex: 3000
           }}
         >
-          {NavbarJson.map((item) => (
-            <span
-              key={item.id}
-              onClick={() => setActiveMenu(item)}
-              style={{
-                cursor: "pointer",
-                fontWeight:
-                  activeMenu.slug === item.slug ? "600" : "400"
-              }}
-            >
-              {item.name.toUpperCase()}
-            </span>
-          ))}
-        </div>
-
-        {/* RIGHT SEARCH */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            borderBottom: "1px solid #999",
-            paddingBottom: "3px"
-          }}
-        >
-          {/* Search Icon */}
-          <span style={{ fontSize: 14 }}>🔍</span>
-
-          <input
-            type="text"
-            placeholder="SEARCH"
+          <div style={{ fontSize: "clamp(40px, 8vw, 70px)", fontWeight: 600 }}>
+            RK
+          </div>
+          <div
             style={{
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: 14,
-              letterSpacing: "2px",
-              width: "120px"
+              fontSize: "clamp(14px, 2vw, 18px)",
+              letterSpacing: "6px"
             }}
-          />
-        </div>
-
-      </div>
-
-      {/* SUB NAV ROW */}
-      {activeMenu.subMenu.length > 0 && (
-        <div
-          style={{
-            ...containerStyle,
-            display: "flex",
-            justifyContent: "center",
-            gap: "35px",
-            paddingBottom: 15,
-            fontSize: 14
-          }}
-        >
-          {activeMenu.subMenu.map((sub, index) => (
-            <span
-              key={index}
-              style={{ cursor: "pointer" }}
-              onClick={() => console.log(sub)}
-            >
-              {sub}
-            </span>
-          ))}
-        </div>
+          >
+            ARCHITECTS
+          </div>
+        </motion.div>
       )}
-    </div>
+      {/* BLACK BACKGROUND */}
+      {showIntro && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 0 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "black",
+            zIndex: 2000
+          }}
+        />
+      )}
+
+      {/* ================= NAVBAR ================= */}
+      <div className="header-wrapper">
+        {/* TOP ROW */}
+        <div style={containerStyle} className="top-row">
+          {/* LOGO */}
+          <Link
+            to="/"
+            ref={logoRef}
+            className="logo"
+          >
+            <span className="logo-main">RK</span>
+            <span className="logo-sub">ARCHITECTS</span>
+          </Link>
+
+          {/* CENTER NAV */}
+          <div className="nav-center">
+            {NavbarJson.map((item) => (
+              <span
+                key={item.id}
+                onClick={() =>
+                  setActiveMenu(activeMenu.slug === item.slug ? {} : item)
+                }
+                className={`nav-item ${activeMenu.slug === item.slug ? "active" : ""
+                  }`}
+              >
+                {item.name.toUpperCase()}
+              </span>
+            ))}
+          </div>
+
+          {/* RIGHT SECTION */}
+          <div className="right-section">
+            <div className="search-box">
+              🔍
+              <input type="text" placeholder="SEARCH" />
+            </div>
+
+            <div
+              className="mobile-toggle"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </div>
+          </div>
+        </div>
+
+        {/* MOBILE DROPDOWN */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                   position: "fixed",
+  top: "90px",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0,0,0,0.35)",
+  zIndex: 998
+                }}
+              />
+
+              {/* Sidebar */}
+              <motion.div
+                initial={{ x: "100%" }}   // start from right
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}      // go back to right
+                transition={{ duration: 0.3 }}
+                className="mobile-sidebar"
+              >
+                {NavbarJson.map((item) => (
+                  <div key={item.id} className="mobile-menu-item">
+
+                    {/* MAIN NAV */}
+                    <div
+                      className="mobile-main"
+                      onClick={() =>
+                        setMobileActiveMenu(
+                          mobileActiveMenu === item.id ? null : item.id
+                        )
+                      }
+                    >
+                      {item.name}
+                    </div>
+
+                    {/* SUB NAV */}
+                    <AnimatePresence>
+                      {mobileActiveMenu === item.id &&
+                        item.subMenu?.length > 0 && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {item.subMenu.map((sub, index) => (
+                              <div
+                                key={index}
+                                className="mobile-sub"
+                                onClick={() => {
+                                  setMobileMenuOpen(false);
+                                  setMobileActiveMenu(null);
+                                  setActiveMenu(item);
+                                }}
+                              >
+                                {sub}
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                  </div>
+                ))}
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* DESKTOP SUB NAV */}
+        {activeMenu.subMenu?.length > 0 && (
+          <div style={containerStyle} className="desktop-subnav">
+            {activeMenu.subMenu.map((sub, index) => (
+              <span key={index}>{sub}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
